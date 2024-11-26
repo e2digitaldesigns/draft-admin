@@ -10,7 +10,6 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm, handleSearch }) => {
-	// call handle search function when user presses enter
 	const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === "Enter") {
 			handleSearch();

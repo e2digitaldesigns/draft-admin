@@ -1,15 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 
 import * as Styled from "./CollectionItems.styles";
 import { MinusSquare, PlusSquare } from "react-feather";
+import { DataCollectionItem, MusicCollectionItem } from "../../../types";
 
 interface CollectionItemsProps {
-	filterAvailableSongs: any;
-	handleCollectionAddItems: any;
+	collectionItems: MusicCollectionItem[];
+	filterAvailableSongs: MusicCollectionItem[];
+	handleCollectionAddItems: (item: DataCollectionItem) => Promise<void>;
+	handleCollectionRemoveItems: (itemId: string) => Promise<void>;
 	songIdsFromSelections: string[];
-	collectionItems: any;
-	handleCollectionRemoveItems: any;
 }
 
 export const CollectionItems: React.FC<CollectionItemsProps> = ({
@@ -33,7 +33,7 @@ export const CollectionItems: React.FC<CollectionItemsProps> = ({
 				</Styled.CollectionItemsHeader>
 
 				<Styled.CollectionItemWrapper>
-					{collectionItems.map((item: any) => {
+					{collectionItems.map(item => {
 						const isSelected = songIdsFromSelections.includes(item.songId);
 
 						return (

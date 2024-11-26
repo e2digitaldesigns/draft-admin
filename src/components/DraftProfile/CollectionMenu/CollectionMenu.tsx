@@ -1,11 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { FC } from "react";
+import { FC } from "react";
 import * as Styled from "./CollectionMenu.styles";
+import { Collection, DataCollectionItem } from "../../../types";
 
 interface CollectionMenuProps {
-	collections: any;
-	filterAvailableSongs: any;
-	handleFetchCollectionItems: any;
+	collections: Collection[];
+	filterAvailableSongs: DataCollectionItem[];
+	handleFetchCollectionItems: (collection: Collection) => void;
 }
 
 export const CollectionMenu: FC<CollectionMenuProps> = ({
@@ -20,12 +20,12 @@ export const CollectionMenu: FC<CollectionMenuProps> = ({
 			</Styled.ActiveItem>
 
 			<Styled.CollectionMenu>
-				{collections.map((collection: any) => (
+				{collections.map((collection: Collection) => (
 					<Styled.CollectionMenuButton
 						key={collection.collectionId}
 						onClick={() => handleFetchCollectionItems(collection)}
 					>
-						<img src={collection.collectionCover} alt={collection.title} />
+						<img src={collection.collectionCover} alt={collection.collectionTitle} />
 					</Styled.CollectionMenuButton>
 				))}
 			</Styled.CollectionMenu>

@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import * as Styled from "./DraftProfile.styles";
 import { CollectionMenu } from "./CollectionMenu/CollectionMenu";
 import { CollectionItems } from "./CollectionItems/CollectionItems";
@@ -8,13 +7,15 @@ import httpService from "../../Api/httpService";
 import { SelectedItems } from "./SelectedItems/SelectedItems";
 import { ArtistList } from "./ArtistList/ArtistList";
 import { Header } from "./Header/Header";
+import { Collection, CollectionArtist, DataCollectionItem, DraftSession } from "../../types";
+import _cloneDeep from "lodash/cloneDeep";
 
 export const DraftProfile: FC = () => {
-	const [draftItem, setDraftItem] = useState<any>();
+	const [draftItem, setDraftItem] = useState<DraftSession | null>(null);
 	const [searchTerm, setSearchTerm] = useState<string>("");
-	const [artistList, setArtistList] = useState<any[]>([]);
-	const [collections, setCollections] = useState<any[]>([]);
-	const [collectionItems, setCollectionItems] = useState<any[]>([]);
+	const [artistList, setArtistList] = useState<CollectionArtist[]>([]);
+	const [collections, setCollections] = useState<Collection[]>([]);
+	const [collectionItems, setCollectionItems] = useState<DataCollectionItem[]>([]);
 	const draftId = useParams().id;
 
 	useEffect(() => {
@@ -37,7 +38,6 @@ export const DraftProfile: FC = () => {
 
 	const handleSearch = async () => {
 		const { data } = await httpService.get(`draft/artist-search?q=${searchTerm}`);
-
 		if (data.resultStatus.success) {
 			setArtistList(data.result.data);
 		}
@@ -46,12 +46,11 @@ export const DraftProfile: FC = () => {
 	const handleArtistCollections = async (artistId: string) => {
 		const { data } = await httpService.get(`draft/artist-album-search?id=${artistId}`);
 		if (data.resultStatus.success) {
-			console.log(data.result);
 			setCollections(data.result);
 		}
 	};
 
-	const handleFetchCollectionItems = async (collection: any) => {
+	const handleFetchCollectionItems = async (collection: Collection) => {
 		const { data } = await httpService.post(`draft/artist-track-search`, {
 			collectionId: collection.collectionId,
 			collectionTitle: collection.collectionTitle,
@@ -63,30 +62,37 @@ export const DraftProfile: FC = () => {
 		}
 	};
 
-	const handleCollectionAddItems = async (item: any) => {
+	const handleCollectionAddItems = async (item: DataCollectionItem) => {
 		if (!draftId) return;
 		const { data } = await httpService.patch(`draft-admin/${draftId}`, {
 			...item
 		});
 
-		setDraftItem((prev: any) => {
-			return { ...prev, collection: data.result };
-		});
+		if (data.resultStatus.success) {
+			const newDraftItem = _cloneDeep(draftItem);
+			if (!newDraftItem) return;
+			newDraftItem.dataCollection = data.result;
+			setDraftItem(newDraftItem);
+		}
 	};
 
 	const handleCollectionRemoveItems = async (itemId: string) => {
 		if (!draftId) return;
 		const { data } = await httpService.delete(`draft-admin/${draftId}/${itemId}`);
+
 		if (data.resultStatus.success) {
-			setDraftItem((prev: any) => {
-				return { ...prev, collection: data.result };
-			});
+			const newDraftItem = _cloneDeep(draftItem);
+			if (!newDraftItem) return;
+			newDraftItem.dataCollection = data.result;
+			setDraftItem(newDraftItem);
 		}
 	};
 
-	const songIdsFromSelections = draftItem?.collection.map((item: any) => item.songId);
+	const songIdsFromSelections =
+		draftItem?.dataCollection.map((item: DataCollectionItem) => item.songId) || [];
+
 	const filterAvailableSongs = collectionItems.filter(
-		(item: any) => !songIdsFromSelections.includes(item.songId)
+		item => !songIdsFromSelections?.includes(item.songId)
 	);
 
 	return (
@@ -103,16 +109,16 @@ export const DraftProfile: FC = () => {
 				/>
 
 				<CollectionItems
+					collectionItems={collectionItems}
 					filterAvailableSongs={filterAvailableSongs}
 					handleCollectionAddItems={handleCollectionAddItems}
-					songIdsFromSelections={songIdsFromSelections}
-					collectionItems={collectionItems}
 					handleCollectionRemoveItems={handleCollectionRemoveItems}
+					songIdsFromSelections={songIdsFromSelections}
 				/>
 
 				<SelectedItems
 					draftItem={draftItem}
-					draftItems={draftItem?.collection || []}
+					draftItems={draftItem?.dataCollection || []}
 					handleCollectionRemoveItems={handleCollectionRemoveItems}
 				/>
 			</Styled.DraftProfileContentWrapper>

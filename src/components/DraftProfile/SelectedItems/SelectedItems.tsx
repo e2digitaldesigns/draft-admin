@@ -1,12 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import * as Styled from "./SelectedItems.styles";
 import { MinusSquare } from "react-feather";
+import { DraftSession, MusicCollectionItem } from "../../../types";
 
 interface SelectedItemsProps {
-	draftItem: any;
-	draftItems: any[];
-	handleCollectionRemoveItems: any;
+	draftItem: DraftSession | null;
+	draftItems: MusicCollectionItem[];
+	handleCollectionRemoveItems: (itemId: string) => Promise<void>;
 }
 export const SelectedItems: React.FC<SelectedItemsProps> = ({
 	draftItem,
@@ -19,7 +19,7 @@ export const SelectedItems: React.FC<SelectedItemsProps> = ({
 				{draftItem?.name} - {draftItem?.description} - {draftItem?.gameCode}
 			</Styled.SelectedHeader>
 			<Styled.SelectedItems>
-				{draftItems.map((item: any) => (
+				{draftItems.map(item => (
 					<Styled.SelectedItem key={item.songId}>
 						<Styled.ItemImageWrapper>
 							<img src={item.albumCover} alt="profile" />

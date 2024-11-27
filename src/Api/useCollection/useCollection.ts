@@ -48,7 +48,7 @@ const fetchArtistCollectionItems = async (itemsObj: ArtistCollectionItemsVars) =
 };
 
 export const useFetchArtist = (searchTerm: string) => {
-	return useQuery<CollectionArtist[], AxiosError<{ error: unknown }>>({
+	return useQuery<CollectionArtist[], AxiosError<{ error: unknown }, CollectionArtist[]>>({
 		queryKey: [QueryKeys.Artist_Search, searchTerm],
 		queryFn: () => fetchArtist(searchTerm),
 		retry: 0,
@@ -70,7 +70,7 @@ export const useFetchArtistCollection = (artistId: string) => {
 export const useFetchArtistCollectionItems = (itemsObj: ArtistCollectionItemsVars) => {
 	return useQuery<DataCollectionItem[], AxiosError<{ error: unknown }>, MusicCollectionItem[]>({
 		queryKey: [QueryKeys.ArtistCollecionItemsSearch, itemsObj.collectionId],
-		queryFn: () => fetchArtistCollectionItems(itemsObj),
+		queryFn: async () => fetchArtistCollectionItems(itemsObj),
 		retry: 0,
 		enabled: !!itemsObj.collectionId,
 		staleTime: Infinity

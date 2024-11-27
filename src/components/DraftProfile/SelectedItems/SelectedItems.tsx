@@ -1,32 +1,28 @@
 import React from "react";
 import * as Styled from "./SelectedItems.styles";
 import { MinusSquare } from "react-feather";
-import { DraftSession, MusicCollectionItem } from "../../../types";
+import useVotingDataStore from "../../../dataStores/useCollections";
 
 interface SelectedItemsProps {
-	draftItem: DraftSession | null;
-	draftItems: MusicCollectionItem[];
 	handleCollectionRemoveItems: (itemId: string) => Promise<void>;
 }
-export const SelectedItems: React.FC<SelectedItemsProps> = ({
-	draftItem,
-	draftItems,
-	handleCollectionRemoveItems
-}) => {
+export const SelectedItems: React.FC<SelectedItemsProps> = ({ handleCollectionRemoveItems }) => {
+	const { draftProfile } = useVotingDataStore();
+
 	return (
 		<Styled.SelectedItemWrapper>
 			<Styled.SelectedHeader>
-				{draftItem?.name} - {draftItem?.description} - {draftItem?.gameCode}
+				{draftProfile?.name} - {draftProfile?.description} - {draftProfile?.gameCode}
 			</Styled.SelectedHeader>
 			<Styled.SelectedItems>
-				{draftItems.map(item => (
+				{draftProfile?.dataCollection?.map(item => (
 					<Styled.SelectedItem key={item.songId}>
 						<Styled.ItemImageWrapper>
 							<img src={item.albumCover} alt="profile" />
 						</Styled.ItemImageWrapper>
 
 						<Styled.ItemInfo>
-							<div> {item.songTitle}</div>
+							<div>{item.songTitle}</div>
 
 							<div>
 								{item.artistName} - {item.albumTitle}

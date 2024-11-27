@@ -1,18 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Search } from "react-feather";
 
 import * as Styled from "./Header.styles";
+import useVotingDataStore from "../../../dataStores/useCollections";
+import { useFetchArtist } from "../../../Api";
 
-interface HeaderProps {
-	searchTerm: string;
-	setSearchTerm: (searchTerm: string) => void;
-	handleSearch: () => void;
-}
+export const Header: React.FC = () => {
+	const { setSelectedSearchTerm, selectedSearchTerm, setArtistList, searchTerm, setSearchTerm } =
+		useVotingDataStore();
 
-export const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm, handleSearch }) => {
+	const { data: artistData, isPending: artistIsPending } = useFetchArtist(selectedSearchTerm);
+
+	useEffect(() => {
+		if (!artistData || artistIsPending) return;
+
+		setArtistList(artistData);
+	}, [artistIsPending, artistData, setArtistList]);
+
 	const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === "Enter") {
-			handleSearch();
+			setSelectedSearchTerm();
 		}
 	};
 
@@ -28,7 +35,7 @@ export const Header: React.FC<HeaderProps> = ({ searchTerm, setSearchTerm, handl
 					placeholder="Search for artists"
 					value={searchTerm}
 					onChange={e => setSearchTerm(e.target.value)}
-					onKeyPress={handleKeyPress}
+					onKeyDown={handleKeyPress}
 				/>
 			</Styled.SearchWrapper>
 		</Styled.HeaderWrapper>

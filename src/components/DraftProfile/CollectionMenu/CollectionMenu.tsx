@@ -1,29 +1,38 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import * as Styled from "./CollectionMenu.styles";
-import { Collection, DataCollectionItem } from "../../../types";
+import { Collection } from "../../../types";
+import useVotingDataStore from "../../../dataStores/useCollections";
+import { useFetchArtistCollection } from "../../../Api";
 
-interface CollectionMenuProps {
-	collections: Collection[];
-	filterAvailableSongs: DataCollectionItem[];
-	handleFetchCollectionItems: (collection: Collection) => void;
-}
+export const CollectionMenu: FC = () => {
+	const {
+		collections,
+		selectedArtistId,
+		setCollections,
+		selectedCollection,
+		setSelectedCollection
+	} = useVotingDataStore();
 
-export const CollectionMenu: FC<CollectionMenuProps> = ({
-	collections,
-	filterAvailableSongs,
-	handleFetchCollectionItems
-}) => {
+	const { data: artistCollectionData, isPending: artistCollectionIsPending } =
+		useFetchArtistCollection(selectedArtistId);
+
+	useEffect(() => {
+		if (!artistCollectionData || artistCollectionIsPending) return;
+
+		setCollections(artistCollectionData);
+	}, [artistCollectionData, artistCollectionIsPending, setCollections]);
+
 	return (
 		<Styled.CollectionMenuWrapper>
 			<Styled.ActiveItem>
-				<img src={filterAvailableSongs?.[0]?.albumCover} alt="profile" />
+				<img src={selectedCollection?.collectionCover} alt="profile" />
 			</Styled.ActiveItem>
 
 			<Styled.CollectionMenu>
 				{collections.map((collection: Collection) => (
 					<Styled.CollectionMenuButton
 						key={collection.collectionId}
-						onClick={() => handleFetchCollectionItems(collection)}
+						onClick={() => setSelectedCollection(collection)}
 					>
 						<img src={collection.collectionCover} alt={collection.collectionTitle} />
 					</Styled.CollectionMenuButton>

@@ -2,20 +2,14 @@
 import React from "react";
 
 import * as Styled from "./ArtistList.styles";
+import useVotingDataStore from "../../../dataStores/useCollections";
 
-interface ArtistListProps {
-	artistList: any[];
-	handleArtistCollections: any;
-}
-
-export const ArtistList: React.FC<ArtistListProps> = ({ artistList, handleArtistCollections }) => {
+export const ArtistList: React.FC = () => {
+	const { artistList, setSelectedArtistId } = useVotingDataStore();
 	return (
 		<Styled.ArtistWrapper>
 			{artistList.map((artist: any) => (
-				<Styled.ArtistImageWrapper
-					key={artist.id}
-					onClick={() => handleArtistCollections(artist.id)}
-				>
+				<Styled.ArtistImageWrapper key={artist.id} onClick={() => setSelectedArtistId(artist.id)}>
 					<img src={artist.picture_small} alt={artist.name} />
 				</Styled.ArtistImageWrapper>
 			))}

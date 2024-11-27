@@ -9,18 +9,55 @@ import { ArtistList } from "./ArtistList/ArtistList";
 import { Header } from "./Header/Header";
 import { Collection, CollectionArtist, DataCollectionItem, DraftSession } from "../../types";
 import _cloneDeep from "lodash/cloneDeep";
+import { useFetchArtist, useFetchArtistCollection, useFetchArtistCollectionItems } from "../../Api";
 
 export const DraftProfile: FC = () => {
+	const draftId = useParams().id;
+
 	const [draftItem, setDraftItem] = useState<DraftSession | null>(null);
 	const [searchTerm, setSearchTerm] = useState<string>("");
 	const [artistList, setArtistList] = useState<CollectionArtist[]>([]);
 	const [collections, setCollections] = useState<Collection[]>([]);
 	const [collectionItems, setCollectionItems] = useState<DataCollectionItem[]>([]);
-	const draftId = useParams().id;
 
+	const [selectedSearchTerm, setSelectedSearchTerm] = useState<string>("");
+	const [selectedArtistId, setSelectedArtistId] = useState<string>("");
+	const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
+
+	// fetch artists on search
+	const { data: artistData, isPending: artistIsPending } = useFetchArtist(selectedSearchTerm);
+
+	// fetch collections on artist selection
+	const { data: artistCollectionData, isPending: artistCollectionIsPending } =
+		useFetchArtistCollection(selectedArtistId);
+
+	// fectch collectin items on collection selection
+	const { data: artistCollectionItemsData, isPending: artistCollectionItemsIsPending } =
+		useFetchArtistCollectionItems(selectedCollection || collections[0] || {});
+
+	// parse artist search data
 	useEffect(() => {
-		console.log("DraftList mounted");
+		if (!artistData || artistIsPending) return;
 
+		setArtistList(artistData);
+	}, [artistIsPending, artistData]);
+
+	// parse artist collection data
+	useEffect(() => {
+		if (!artistCollectionData || artistCollectionIsPending) return;
+
+		setCollections(artistCollectionData);
+	}, [artistCollectionIsPending, artistCollectionData]);
+
+	// parse artist collection items data
+	useEffect(() => {
+		if (!artistCollectionItemsData || artistCollectionItemsIsPending) return;
+
+		setCollectionItems(artistCollectionItemsData);
+	}, [artistCollectionItemsIsPending, artistCollectionItemsData]);
+
+	// fetch draft data
+	useEffect(() => {
 		if (!draftId) return;
 
 		const fecthData = async () => {
@@ -30,36 +67,23 @@ export const DraftProfile: FC = () => {
 
 		fecthData();
 
-		return () => {
-			console.log("DraftList unmounted");
-		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
+	/////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////
+
 	const handleSearch = async () => {
-		const { data } = await httpService.get(`draft/artist-search?q=${searchTerm}`);
-		if (data.resultStatus.success) {
-			setArtistList(data.result.data);
-		}
+		setSelectedSearchTerm(searchTerm);
 	};
 
 	const handleArtistCollections = async (artistId: string) => {
-		const { data } = await httpService.get(`draft/artist-album-search?id=${artistId}`);
-		if (data.resultStatus.success) {
-			setCollections(data.result);
-		}
+		setSelectedArtistId(artistId);
 	};
 
 	const handleFetchCollectionItems = async (collection: Collection) => {
-		const { data } = await httpService.post(`draft/artist-track-search`, {
-			collectionId: collection.collectionId,
-			collectionTitle: collection.collectionTitle,
-			collectionCover: collection.collectionCover
-		});
-		if (data.resultStatus.success) {
-			console.log(data.result);
-			setCollectionItems(data.result);
-		}
+		setSelectedCollection(collection);
 	};
 
 	const handleCollectionAddItems = async (item: DataCollectionItem) => {

@@ -1,7 +1,13 @@
 import { create, StoreApi } from "zustand";
 import { persist } from "zustand/middleware";
 import _cloneDeep from "lodash/cloneDeep";
-import { Collection, CollectionArtist, DataCollectionItem, DraftSession } from "../types";
+import {
+	Collection,
+	CollectionArtist,
+	MediaTypes,
+	DataCollectionItem,
+	DraftSession
+} from "../types";
 import httpService from "../Api/httpService";
 
 export interface ICollectionStore {
@@ -11,6 +17,8 @@ export interface ICollectionStore {
 	artistList: CollectionArtist[];
 	collections: Collection[];
 	collectionItems: DataCollectionItem[];
+
+	collectionFilter: MediaTypes | null;
 
 	selectedSearchTerm: string;
 	selectedArtistId: string;
@@ -29,6 +37,7 @@ export interface ICollectionStore {
 	setSelectedCollection: (collection: Collection) => void;
 
 	hydrateDataCollection: (data: DataCollectionItem[]) => void;
+	setCollectionFilter: (filter: MediaTypes) => void;
 }
 
 const useVotingDataStore = create(
@@ -41,6 +50,7 @@ const useVotingDataStore = create(
 				artistList: [],
 				collections: [],
 				collectionItems: [],
+				collectionFilter: null,
 
 				selectedArtistId: "",
 				selectedCollection: null,
@@ -97,6 +107,10 @@ const useVotingDataStore = create(
 					const draftProfile = _cloneDeep(get().draftProfile);
 					draftProfile!.dataCollection = data;
 					set({ draftProfile });
+				},
+
+				setCollectionFilter: (filter: MediaTypes | null) => {
+					set({ collectionFilter: get().collectionFilter ? null : filter });
 				}
 			};
 		},

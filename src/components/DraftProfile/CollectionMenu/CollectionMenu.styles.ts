@@ -5,7 +5,7 @@ export const CollectionMenuWrapper = Styled.div`
   border-bottom: .125rem solid ${({ theme }) => theme.colors.primary};
   display: grid;
   gap: .5rem;
-  grid-template-rows: 16.25rem 1fr;
+  grid-template-rows: 16.25rem 2.5rem 1fr;
   height: calc(100vh - 6rem);
   padding: 0.5rem;
   width: 100%;

@@ -17,7 +17,7 @@ export const SelectedItems = Styled.div`
   display: flex;
   flex-direction: column;
   gap: .25rem;
-  overflow-y: auto;
+  overflow-y: scroll;
   overflow-x: hidden;
 `;
 

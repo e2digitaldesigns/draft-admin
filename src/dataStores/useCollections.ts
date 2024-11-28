@@ -57,7 +57,7 @@ const useVotingDataStore = create(
 				draftDataHydration: async (draftId: string) => {
 					try {
 						const { data } = await httpService.get(`/draft-admin/${draftId}`);
-						if (!data?.success) throw new Error("Error fetching draft data");
+						if (!data?.resultStatus?.success) throw new Error("Error fetching draft data");
 						set({ draftId, draftProfile: data.result });
 					} catch (error) {
 						console.error("Error in data fetch:", error);

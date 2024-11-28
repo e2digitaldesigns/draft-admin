@@ -4,6 +4,7 @@ import { ApiResponse } from "../types";
 import { Collection, CollectionArtist, DataCollectionItem, MusicCollectionItem } from "../../types";
 import httpService from "../httpService";
 import useVotingDataStore from "../../dataStores/useCollections";
+import { isArray } from "lodash";
 
 type ArtistCollectionItemsVars = {
 	collectionId: string;
@@ -25,7 +26,7 @@ enum QueryKeys {
 
 type AddCollectionItemVars = {
 	draftId: string;
-	item: DataCollectionItem;
+	item: DataCollectionItem | DataCollectionItem[];
 };
 
 type RemoveCollectionItemVars = {
@@ -58,7 +59,14 @@ const fetchArtistCollectionItems = async (itemsObj: ArtistCollectionItemsVars) =
 	return data.result;
 };
 
-const addCollectionItem = async (draftId: string, item: DataCollectionItem) => {
+const addCollectionItems = async (
+	draftId: string,
+	item: DataCollectionItem | DataCollectionItem[]
+) => {
+	if (!isArray(item)) {
+		item = [item];
+	}
+
 	const { data } = await httpService.patch<ApiResponse<DataCollectionItem[]>>(
 		`draft-admin/${draftId}`,
 		item
@@ -76,7 +84,7 @@ const removeCollectionItem = async (draftId: string, itemId: string) => {
 export const useAddCollectionItem = () => {
 	const { hydrateDataCollection } = useVotingDataStore();
 	return useMutation<DataCollectionItem[], AxiosError<{ error: unknown }>, AddCollectionItemVars>({
-		mutationFn: ({ draftId, item }) => addCollectionItem(draftId, item),
+		mutationFn: ({ draftId, item }) => addCollectionItems(draftId, item),
 		retry: 0,
 		onSuccess: hydrateDataCollection
 	});

@@ -2,26 +2,24 @@ import React, { useEffect } from "react";
 
 import * as Styled from "./CollectionItems.styles";
 import { MinusSquare, PlusSquare } from "react-feather";
-import { DataCollectionItem } from "../../../types";
+
 import useVotingDataStore from "../../../dataStores/useCollections";
-import { useFetchArtistCollectionItems } from "../../../Api";
+import {
+	useAddCollectionItem,
+	useFetchArtistCollectionItems,
+	useRemoveCollectionItem
+} from "../../../Api";
 
-interface CollectionItemsProps {
-	handleCollectionAddItems: (item: DataCollectionItem) => Promise<void>;
-	handleCollectionRemoveItems: (itemId: string) => Promise<void>;
-}
-
-export const CollectionItems: React.FC<CollectionItemsProps> = ({
-	handleCollectionAddItems,
-	handleCollectionRemoveItems
-}) => {
+export const CollectionItems: React.FC = () => {
 	const {
+		draftId,
 		filterAvailableSongs,
 		songIdsFromSelections,
 		selectedCollection,
 		collectionItems,
 		setCollectionItems
 	} = useVotingDataStore();
+
 	const availableSongs = filterAvailableSongs();
 	const songdIds = songIdsFromSelections();
 
@@ -30,6 +28,9 @@ export const CollectionItems: React.FC<CollectionItemsProps> = ({
 		collectionTitle: selectedCollection?.collectionTitle || "",
 		collectionCover: selectedCollection?.collectionCover || ""
 	});
+
+	const addItem = useAddCollectionItem();
+	const removeItem = useRemoveCollectionItem();
 
 	useEffect(() => {
 		if (!data || isPending) return;
@@ -59,11 +60,18 @@ export const CollectionItems: React.FC<CollectionItemsProps> = ({
 								{item.songTitle}
 								<div>
 									{isSelected ? (
-										<Styled.AddButton onClick={() => handleCollectionRemoveItems(item.songId)}>
+										<Styled.AddButton
+											onClick={() =>
+												removeItem.mutate({
+													draftId,
+													itemId: item.songId
+												})
+											}
+										>
 											<MinusSquare size={20} />
 										</Styled.AddButton>
 									) : (
-										<Styled.AddButton onClick={() => handleCollectionAddItems(item)}>
+										<Styled.AddButton onClick={() => addItem.mutate({ draftId, item })}>
 											<PlusSquare size={20} />
 										</Styled.AddButton>
 									)}

@@ -1,8 +1,11 @@
 import { create, StoreApi } from "zustand";
 import { persist } from "zustand/middleware";
+import _cloneDeep from "lodash/cloneDeep";
 import { Collection, CollectionArtist, DataCollectionItem, DraftSession } from "../types";
+import httpService from "../Api/httpService";
 
 export interface ICollectionStore {
+	draftId: string;
 	draftProfile: DraftSession | null;
 	searchTerm: string;
 	artistList: CollectionArtist[];
@@ -16,7 +19,7 @@ export interface ICollectionStore {
 	songIdsFromSelections: () => string[];
 	filterAvailableSongs: () => DataCollectionItem[];
 
-	draftDataHydration: (data: DraftSession) => void;
+	draftDataHydration: (draftId: string) => void;
 	setSearchTerm: (searchTerm: string) => void;
 	setArtistList: (artistList: CollectionArtist[]) => void;
 	setSelectedSearchTerm: () => void;
@@ -24,12 +27,15 @@ export interface ICollectionStore {
 	setCollectionItems: (collectionItems: DataCollectionItem[]) => void;
 	setSelectedArtistId: (artistId: string) => void;
 	setSelectedCollection: (collection: Collection) => void;
+
+	hydrateDataCollection: (data: DataCollectionItem[]) => void;
 }
 
 const useVotingDataStore = create(
 	persist<ICollectionStore>(
 		(set: StoreApi<ICollectionStore>["setState"], get: StoreApi<ICollectionStore>["getState"]) => {
 			return {
+				draftId: "",
 				draftProfile: null,
 				searchTerm: "",
 				artistList: [],
@@ -48,8 +54,14 @@ const useVotingDataStore = create(
 						item => !get().songIdsFromSelections()?.includes(item.songId)
 					),
 
-				draftDataHydration: (data: DraftSession) => {
-					set({ draftProfile: data });
+				draftDataHydration: async (draftId: string) => {
+					try {
+						const { data } = await httpService.get(`/draft-admin/${draftId}`);
+						if (!data?.success) throw new Error("Error fetching draft data");
+						set({ draftId, draftProfile: data.result });
+					} catch (error) {
+						console.error("Error in data fetch:", error);
+					}
 				},
 
 				setSearchTerm: (searchTerm: string) => {
@@ -78,6 +90,13 @@ const useVotingDataStore = create(
 
 				setSelectedCollection: (collection: Collection) => {
 					set({ selectedCollection: collection });
+				},
+
+				hydrateDataCollection: data => {
+					if (!data) return;
+					const draftProfile = _cloneDeep(get().draftProfile);
+					draftProfile!.dataCollection = data;
+					set({ draftProfile });
 				}
 			};
 		},

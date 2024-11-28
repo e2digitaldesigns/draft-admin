@@ -1,8 +1,9 @@
 import { AxiosError } from "axios";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { ApiResponse } from "../types";
 import { Collection, CollectionArtist, DataCollectionItem, MusicCollectionItem } from "../../types";
 import httpService from "../httpService";
+import useVotingDataStore from "../../dataStores/useCollections";
 
 type ArtistCollectionItemsVars = {
 	collectionId: string;
@@ -21,6 +22,16 @@ enum QueryKeys {
 	ArtistCollectionSearch = "artist-collections-search",
 	ArtistCollecionItemsSearch = "artist-collections-items-search"
 }
+
+type AddCollectionItemVars = {
+	draftId: string;
+	item: DataCollectionItem;
+};
+
+type RemoveCollectionItemVars = {
+	draftId: string;
+	itemId: string;
+};
 
 const fetchArtist = async (searchTerm: string) => {
 	const { data } = await httpService.get<ApiResponse<CollectionArtist[]>>(
@@ -45,6 +56,43 @@ const fetchArtistCollectionItems = async (itemsObj: ArtistCollectionItemsVars) =
 	);
 
 	return data.result;
+};
+
+const addCollectionItem = async (draftId: string, item: DataCollectionItem) => {
+	const { data } = await httpService.patch<ApiResponse<DataCollectionItem[]>>(
+		`draft-admin/${draftId}`,
+		item
+	);
+	return data.result;
+};
+
+const removeCollectionItem = async (draftId: string, itemId: string) => {
+	const { data } = await httpService.delete<ApiResponse<DataCollectionItem[]>>(
+		`draft-admin/${draftId}/${itemId}`
+	);
+	return data.result;
+};
+
+export const useAddCollectionItem = () => {
+	const { hydrateDataCollection } = useVotingDataStore();
+	return useMutation<DataCollectionItem[], AxiosError<{ error: unknown }>, AddCollectionItemVars>({
+		mutationFn: ({ draftId, item }) => addCollectionItem(draftId, item),
+		retry: 0,
+		onSuccess: hydrateDataCollection
+	});
+};
+
+export const useRemoveCollectionItem = () => {
+	const { hydrateDataCollection } = useVotingDataStore();
+	return useMutation<
+		DataCollectionItem[],
+		AxiosError<{ error: unknown }>,
+		RemoveCollectionItemVars
+	>({
+		mutationFn: ({ draftId, itemId }) => removeCollectionItem(draftId, itemId),
+		retry: 0,
+		onSuccess: hydrateDataCollection
+	});
 };
 
 export const useFetchArtist = (searchTerm: string) => {

@@ -2,12 +2,11 @@ import React from "react";
 import * as Styled from "./SelectedItems.styles";
 import { MinusSquare } from "react-feather";
 import useVotingDataStore from "../../../dataStores/useCollections";
+import { useRemoveCollectionItem } from "../../../Api";
 
-interface SelectedItemsProps {
-	handleCollectionRemoveItems: (itemId: string) => Promise<void>;
-}
-export const SelectedItems: React.FC<SelectedItemsProps> = ({ handleCollectionRemoveItems }) => {
-	const { draftProfile } = useVotingDataStore();
+export const SelectedItems: React.FC = () => {
+	const { draftId, draftProfile } = useVotingDataStore();
+	const removeItem = useRemoveCollectionItem();
 
 	return (
 		<Styled.SelectedItemWrapper>
@@ -29,7 +28,9 @@ export const SelectedItems: React.FC<SelectedItemsProps> = ({ handleCollectionRe
 							</div>
 						</Styled.ItemInfo>
 
-						<Styled.RemoveButton onClick={() => handleCollectionRemoveItems(item.songId)}>
+						<Styled.RemoveButton
+							onClick={() => removeItem.mutate({ draftId, itemId: item.songId })}
+						>
 							<MinusSquare size={20} />
 						</Styled.RemoveButton>
 					</Styled.SelectedItem>

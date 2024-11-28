@@ -31,7 +31,7 @@ type AddCollectionItemVars = {
 
 type RemoveCollectionItemVars = {
 	draftId: string;
-	itemId: string;
+	itemId: string | string[];
 };
 
 const fetchArtist = async (searchTerm: string) => {
@@ -74,9 +74,14 @@ const addCollectionItems = async (
 	return data.result;
 };
 
-const removeCollectionItem = async (draftId: string, itemId: string) => {
-	const { data } = await httpService.delete<ApiResponse<DataCollectionItem[]>>(
-		`draft-admin/${draftId}/${itemId}`
+const removeCollectionItem = async (draftId: string, itemId: string | string[]) => {
+	if (!isArray(itemId)) {
+		itemId = [itemId];
+	}
+
+	const { data } = await httpService.patch<ApiResponse<DataCollectionItem[]>>(
+		`draft-admin/${draftId}/remove`,
+		{ itemId }
 	);
 	return data.result;
 };

@@ -8,10 +8,19 @@ export const SelectedItems: React.FC = () => {
 	const { draftId, draftProfile } = useVotingDataStore();
 	const removeItem = useRemoveCollectionItem();
 
+	const handleRemoveAll = () => {
+		const itemId = draftProfile?.dataCollection?.map(item => item.songId);
+		if (!itemId?.length) {
+			return;
+		}
+		removeItem.mutate({ draftId, itemId });
+	};
+
 	return (
 		<Styled.SelectedItemWrapper>
 			<Styled.SelectedHeader>
 				{draftProfile?.name} - {draftProfile?.description} - {draftProfile?.gameCode}
+				<div onClick={handleRemoveAll}>Clear Pool</div>
 			</Styled.SelectedHeader>
 			<Styled.SelectedItems>
 				{draftProfile?.dataCollection?.map(item => (

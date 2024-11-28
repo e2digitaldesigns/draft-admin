@@ -13,14 +13,12 @@ import {
 export const CollectionItems: React.FC = () => {
 	const {
 		draftId,
-		filterAvailableSongs,
 		songIdsFromSelections,
 		selectedCollection,
 		collectionItems,
 		setCollectionItems
 	} = useVotingDataStore();
 
-	const availableSongs = filterAvailableSongs();
 	const songdIds = songIdsFromSelections();
 
 	const { data, isPending } = useFetchArtistCollectionItems({
@@ -38,16 +36,21 @@ export const CollectionItems: React.FC = () => {
 		setCollectionItems(data);
 	}, [data, isPending, setCollectionItems]);
 
+	const handleAllAllItems = () => {
+		addItem.mutate({ draftId, item: collectionItems });
+	};
+
 	return (
 		<>
 			<Styled.CollectionItemsWrapper>
 				<Styled.CollectionItemsHeader>
 					<Styled.HeaderImage>
-						<img src={availableSongs?.[0]?.albumCover} alt="profile" />
+						<img src={collectionItems?.[0]?.albumCover} alt="profile" />
 					</Styled.HeaderImage>
 					<Styled.HeaderInfo>
-						<div>{availableSongs?.[0]?.albumTitle}</div>
-						<div>{availableSongs?.[0]?.artistName}</div>
+						<div>{collectionItems?.[0]?.albumTitle}</div>
+						<div>{collectionItems?.[0]?.artistName}</div>
+						<div onClick={handleAllAllItems}>add all</div>
 					</Styled.HeaderInfo>
 				</Styled.CollectionItemsHeader>
 

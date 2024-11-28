@@ -9,6 +9,7 @@ import {
 	useFetchArtistCollectionItems,
 	useRemoveCollectionItem
 } from "../../../Api";
+import { AudioButton } from "./AudioButton";
 
 export const CollectionItems: React.FC = () => {
 	const {
@@ -60,7 +61,9 @@ export const CollectionItems: React.FC = () => {
 
 						return (
 							<Styled.CollectionItem key={item.songId} $isSelected={isSelected}>
-								{item.songTitle}
+								<AudioButton item={item} />
+
+								<div>{item.songTitle}</div>
 								<div>
 									{isSelected ? (
 										<Styled.AddButton

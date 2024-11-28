@@ -38,6 +38,13 @@ export interface ICollectionStore {
 
 	hydrateDataCollection: (data: DataCollectionItem[]) => void;
 	setCollectionFilter: (filter: MediaTypes) => void;
+
+	setAudioFile: (songId: string, file: string) => void;
+	audioFile: { songId: string; file: string } | null;
+	audioProgress: number;
+	audioPlayerState: "playing" | "paused" | "stopped";
+	setAudioProgress: (progress: number) => void;
+	setAudioPlayerState: (state: "playing" | "paused" | "stopped") => void;
 }
 
 const useVotingDataStore = create(
@@ -55,6 +62,9 @@ const useVotingDataStore = create(
 				selectedArtistId: "",
 				selectedCollection: null,
 				selectedSearchTerm: "",
+				audioFile: null,
+				audioProgress: 0,
+				audioPlayerState: "stopped",
 
 				songIdsFromSelections: () =>
 					get().draftProfile?.dataCollection.map((item: DataCollectionItem) => item.songId) || [],
@@ -111,6 +121,18 @@ const useVotingDataStore = create(
 
 				setCollectionFilter: (filter: MediaTypes | null) => {
 					set({ collectionFilter: get().collectionFilter ? null : filter });
+				},
+
+				setAudioFile: (songId, file) => {
+					set({ audioFile: { songId, file }, audioProgress: 0 });
+				},
+
+				setAudioProgress: progress => {
+					set({ audioProgress: progress });
+				},
+
+				setAudioPlayerState: state => {
+					set({ audioPlayerState: state });
 				}
 			};
 		},

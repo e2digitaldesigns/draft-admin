@@ -44,16 +44,16 @@ export const CollectionItemWrapper = Styled.div`
 `;
 
 export const CollectionItem = Styled.div<{ $isSelected: boolean }>`
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1.5rem 1fr 1.5rem;
   gap: .25rem;
   background-color: ${({ theme }) => theme.colors.itemBgColor};
-  padding: .75rem .5rem;
+  padding:  .25rem;
   font-size: .875rem;
   transition: filter .3s;
   align-items: center;
   width: calc(100% - .5rem);
-  border-left: .25rem solid;
+  border-left: .125rem solid;
 
   border-left-color: ${({ $isSelected, theme }) =>
 		$isSelected ? theme.colors.primary : "transparent"};

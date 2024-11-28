@@ -7,6 +7,8 @@ import { SelectedItems } from "./SelectedItems/SelectedItems";
 import { ArtistList } from "./ArtistList/ArtistList";
 import { Header } from "./Header/Header";
 import useVotingDataStore from "../../dataStores/useCollections";
+import { ProgressBar } from "../Shared/ProgressBar";
+import { AudioPlayer } from "./CollectionItems/AudioPlayer";
 
 export const DraftProfile: FC = () => {
 	const draftId = useParams().id;
@@ -17,18 +19,22 @@ export const DraftProfile: FC = () => {
 	}, [draftDataHydration, draftId]);
 
 	return (
-		<Styled.DraftProfileWrapper>
-			<Header />
+		<>
+			<Styled.DraftProfileWrapper>
+				<ProgressBar />
+				<Header />
 
-			<Styled.DraftProfileContentWrapper>
-				<ArtistList />
+				<Styled.DraftProfileContentWrapper>
+					<ArtistList />
 
-				<CollectionMenu />
+					<CollectionMenu />
 
-				<CollectionItems />
+					<CollectionItems />
 
-				<SelectedItems />
-			</Styled.DraftProfileContentWrapper>
-		</Styled.DraftProfileWrapper>
+					<SelectedItems />
+				</Styled.DraftProfileContentWrapper>
+			</Styled.DraftProfileWrapper>
+			<AudioPlayer />
+		</>
 	);
 };
